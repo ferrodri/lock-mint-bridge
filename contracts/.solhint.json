@@ -5,6 +5,7 @@
         "compiler-version": ["error", "^0.8.0"],
         "func-name-mixedcase": "off",
         "func-param-name-mixedcase": "warn",
+        "import-path-check": "off",
         "func-order": "warn",
         "max-line-length": ["warn", 120],
         "modifier-name-mixedcase": "warn",
