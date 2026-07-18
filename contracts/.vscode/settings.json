@@ -5,12 +5,6 @@
   "editor.formatOnSave": true,
   "solidity.compileUsingRemoteVersion": "v0.8.36",
   "solidity.defaultCompiler": "remote",
-  "solidity.remappings": [
-    "@openzeppelin/contracts/=dependencies/@openzeppelin-contracts-5.6.1/contracts/",
-    "forge-std/=dependencies/forge-std-1.16.2/src/"
-  ],
-  "solidity.packageDefaultDependenciesContractsDirectory": "",
-  "solidity.packageDefaultDependenciesDirectory": "dependencies",
   "solidity.formatter": "forge",
   "solidity.linter": "solhint",
   "[solidity]": {
