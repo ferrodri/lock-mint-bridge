@@ -123,7 +123,7 @@ contract LockBridgeTest is Test {
         assertEq(tokenB.totalSupply(), AMOUNT);
     }
 
-    function test_RelayerCanFreeMint() public {
+    function test_TrustedRelayerCanMintWithoutLock() public {
         vm.chainId(CHAIN_B);
 
         bytes memory payload =
