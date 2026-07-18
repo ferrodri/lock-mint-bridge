@@ -1,0 +1,13 @@
+{
+  "name": "lock-mint-bridge-contracts",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@10.3.0",
+  "scripts": {
+    "lint": "solhint 'src/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
+    "lint:fix": "solhint --fix 'src/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'"
+  },
+  "devDependencies": {
+    "solhint": "6.0.1"
+  }
+}
