@@ -1,0 +1,29 @@
+---
+description: ABI naming and completeness conventions
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# ABI Conventions
+
+## Capitalize the acronym
+
+The `ABI` acronym is always uppercase in identifiers — never `Abi`. Name ABI
+constants in SCREAMING_SNAKE_CASE ending in `_ABI`.
+
+```ts
+// ❌ BAD
+export const tokenAAbi = [ /* ... */ ] as const;
+
+// ✅ GOOD
+export const TOKEN_A_ABI = [ /* ... */ ] as const;
+```
+
+## Always include the whole ABI
+
+Embed the contract's COMPLETE ABI, copied verbatim from the compiled artifact
+(`contracts/out/<Name>.sol/<Name>.json` → `.abi`). Do NOT hand-pick a subset of
+functions — you will inevitably need more later (e.g. `approve`, `allowance`).
+
+- Keep `as const` so wagmi/viem can infer argument and return types.
+- One file per contract under `src/lib/abis/`.
