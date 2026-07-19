@@ -1,5 +1,6 @@
 'use client';
 
+import { BalancesProvider } from '@/contexts/BalancesContext';
 import { RainbowKitProvider, darkTheme, getDefaultConfig, lightTheme } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -41,7 +42,9 @@ export const Providers = ({ children }: ProvidersProps) => {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ThemedProviders>{children}</ThemedProviders>
+          <BalancesProvider>
+            <ThemedProviders>{children}</ThemedProviders>
+          </BalancesProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </WagmiProvider>
