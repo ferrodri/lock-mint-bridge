@@ -1,0 +1,26 @@
+---
+description: Compare EVM addresses with viem's isAddressEqual, never lowercased string equality
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Compare addresses with `isAddressEqual`
+
+To compare two EVM addresses, use viem's `isAddressEqual`. Never compare with `===`/`!==` on
+`.toLowerCase()`d strings. EIP-55 casing is only a checksum for typo detection — it is not part of an
+address's identity — so comparisons must be case-insensitive, and `isAddressEqual` also validates
+that both operands are well-formed addresses.
+
+```ts
+import { isAddressEqual } from 'viem';
+
+// ❌ BAD — manual lowercasing, no validation
+if (log.address.toLowerCase() === gateway.toLowerCase()) { /* ... */ }
+
+// ✅ GOOD
+if (isAddressEqual(log.address, gateway)) { /* ... */ }
+```
+
+This applies to comparisons only. `.toLowerCase()` is still fine for normalizing an address before
+storage (e.g. a DB column whose CHECK requires lowercase). It does NOT apply to non-address values
+like tx hashes or `bytes32` ids — compare those with a lowercased/normalized equality as usual.
