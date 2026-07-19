@@ -11,7 +11,7 @@ export function useLockBridgeContract() {
   const chainId = useChainId();
 
   const contract: ContractMap = {
-    [optimismSepolia.id]: '0xdF6E6dE9bD34d9c95FE4681CAF320D00b1314cB3'
+    [optimismSepolia.id]: '0x645616D46EB1eCebC1AB1c9927192867DE0DC28C'
   };
 
   return contract[chainId];

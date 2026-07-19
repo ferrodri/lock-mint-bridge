@@ -11,7 +11,7 @@ export function useTokenAContract() {
   const chainId = useChainId();
 
   const contract: ContractMap = {
-    [optimismSepolia.id]: '0xE0C064077B513AfC0858287D75D3721cCf626C2e'
+    [optimismSepolia.id]: '0x83D94B802F5D9c7EeF56fC6c0E92eeBB11cf83C9'
   };
 
   return contract[chainId];

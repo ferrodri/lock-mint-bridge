@@ -10,7 +10,7 @@ export function useTokenBContract() {
   const chainId = baseSepolia.id;
 
   const contract: ContractMap = {
-    [baseSepolia.id]: '0x191Fbac34DF27F9B41baa94d9206067b494F7BEd'
+    [baseSepolia.id]: '0x241Fb2FF9eDe4b68f9DeF8DC8e9AdE52D75Dc8e7'
   };
 
   return contract[chainId];
