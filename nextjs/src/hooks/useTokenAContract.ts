@@ -4,7 +4,6 @@ import { useChainId } from 'wagmi';
 import { optimismSepolia } from 'wagmi/chains';
 
 interface ContractMap {
-  // chainId to contract address mapping
   [chainId: number]: `0x${string}`;
 }
 
