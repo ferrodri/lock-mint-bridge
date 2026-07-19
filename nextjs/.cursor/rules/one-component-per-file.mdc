@@ -1,0 +1,42 @@
+---
+description: Each React component lives in its own file
+globs: **/*.tsx
+alwaysApply: false
+---
+
+# One Component Per File
+
+Every React component must live in its own file. Do not define more than one
+component in a single file, even small presentational helpers.
+
+- The file exports exactly one component; its props type lives alongside it.
+- Name the file after the component (`TokenBalanceRow.tsx` → `TokenBalanceRow`).
+- A folder's entry component goes in `index.tsx`; sibling components each get
+  their own file in the same folder and are imported where needed.
+
+```tsx
+// ❌ BAD - two components in one file
+export const Wallet = () => {
+  return <TokenBalanceRow symbol="LTCA" balance="0" chainLogo={logo} />;
+};
+
+const TokenBalanceRow = ({ symbol, balance, chainLogo }: TokenBalanceRowProps) => {
+  return <div>{/* ... */}</div>;
+};
+```
+
+```tsx
+// ✅ GOOD - TokenBalanceRow.tsx
+type TokenBalanceRowProps = {
+  symbol: string;
+  balance: string;
+  chainLogo: React.ReactNode;
+};
+
+export const TokenBalanceRow = ({ symbol, balance, chainLogo }: TokenBalanceRowProps) => {
+  return <div>{/* ... */}</div>;
+};
+
+// ✅ GOOD - index.tsx
+import { TokenBalanceRow } from './TokenBalanceRow';
+```
