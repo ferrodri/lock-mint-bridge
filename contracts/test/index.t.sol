@@ -21,7 +21,7 @@ contract LockBridgeTest is Test {
     ERC7786Gateway internal gateway;
 
     // Chain A
-    ERC20ForLock internal token;
+    ERC20ForLock internal tokenA;
     LockBridge internal lockBridge;
 
     // Chain B
@@ -30,7 +30,6 @@ contract LockBridgeTest is Test {
 
     address internal user = makeAddr("user");
     address internal relayer = makeAddr("relayer");
-    address internal mintBridgeB = makeAddr("mintBridgeB");
 
     bytes internal counterpartB; // mint bridge on chain B, as seen by the lock bridge
     bytes internal counterpartA; // lock bridge on chain A, as seen by the mint bridge
@@ -48,44 +47,30 @@ contract LockBridgeTest is Test {
     }
 
     function setUp() public {
-        _setUpGateway();
-
-        address predictedMintBridge = vm.computeCreateAddress(address(this), vm.getNonce(address(this)) + 3);
-
-        _setUpChainA(predictedMintBridge);
-        _setUpChainB();
-
-        assertEq(address(mintBridge), predictedMintBridge, "mint bridge address prediction mismatch");
-    }
-
-    /// @dev Shared ERC-7786 gateway used by both chains' bridges in this single-EVM test.
-    function _setUpGateway() internal {
         gateway = new ERC7786Gateway(relayer);
-    }
-
-    /// @dev Chain A: plain ERC-20 asset + lock bridge, linked to the mint bridge on chain B.
-    function _setUpChainA(address mintBridgeB) internal {
-        vm.chainId(CHAIN_A);
-        token = new ERC20ForLock();
-
-        counterpartB = InteroperableAddress.formatEvmV1(CHAIN_B, mintBridgeB);
-        CrosschainLinked.Link[] memory links = new CrosschainLinked.Link[](1);
-        links[0] = CrosschainLinked.Link({gateway: address(gateway), counterpart: counterpartB});
-        lockBridge = new LockBridge(token, links);
-
-        token.mint(user, AMOUNT);
-    }
-
-    /// @dev Chain B: mintable ERC-7802 token + mint bridge, linked back to the lock bridge on chain A.
-    function _setUpChainB() internal {
-        vm.chainId(CHAIN_B);
+        tokenA = new ERC20ForLock();
         tokenB = new ERC7802Token();
 
+        address predictedMintBridge = vm.computeCreateAddress(address(this), vm.getNonce(address(this)) + 1);
+
+        // Chain A (lock side): counterpart = predicted mint bridge on chain B.
+        counterpartB = InteroperableAddress.formatEvmV1(CHAIN_B, predictedMintBridge);
+        lockBridge = new LockBridge(tokenA, _links(counterpartB));
+
+        // Chain B (mint side): counterpart = actual lock bridge on chain A.
         counterpartA = InteroperableAddress.formatEvmV1(CHAIN_A, address(lockBridge));
-        CrosschainLinked.Link[] memory links = new CrosschainLinked.Link[](1);
-        links[0] = CrosschainLinked.Link({gateway: address(gateway), counterpart: counterpartA});
-        mintBridge = new MintBridge(tokenB, links);
+        mintBridge = new MintBridge(tokenB, _links(counterpartA));
         tokenB.setTokenBridge(address(mintBridge));
+
+        assertEq(address(mintBridge), predictedMintBridge, "mint bridge address prediction mismatch");
+
+        tokenA.mint(user, AMOUNT);
+    }
+
+    /// @dev Build a single-element link array pointing at the shared gateway for `counterpart`.
+    function _links(bytes memory counterpart) internal view returns (CrosschainLinked.Link[] memory links) {
+        links = new CrosschainLinked.Link[](1);
+        links[0] = CrosschainLinked.Link({gateway: address(gateway), counterpart: counterpart});
     }
 
     function test_Lock() public {
@@ -93,12 +78,12 @@ contract LockBridgeTest is Test {
         bytes memory to = InteroperableAddress.formatEvmV1(CHAIN_B, user);
 
         vm.startPrank(user);
-        token.approve(address(lockBridge), AMOUNT);
+        tokenA.approve(address(lockBridge), AMOUNT);
         lockBridge.crosschainTransfer(to, AMOUNT);
         vm.stopPrank();
 
-        assertEq(token.balanceOf(user), 0);
-        assertEq(token.balanceOf(address(lockBridge)), AMOUNT);
+        assertEq(tokenA.balanceOf(user), 0);
+        assertEq(tokenA.balanceOf(address(lockBridge)), AMOUNT);
     }
 
     function test_Mint() public {
@@ -107,7 +92,7 @@ contract LockBridgeTest is Test {
         bytes memory to = InteroperableAddress.formatEvmV1(CHAIN_B, user);
 
         vm.startPrank(user);
-        token.approve(address(lockBridge), AMOUNT);
+        tokenA.approve(address(lockBridge), AMOUNT);
         vm.recordLogs();
         lockBridge.crosschainTransfer(to, AMOUNT);
         vm.stopPrank();
