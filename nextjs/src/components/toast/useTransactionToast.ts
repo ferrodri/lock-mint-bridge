@@ -23,6 +23,7 @@ export const useTransactionToast = ({
   const receipt = useWaitForTransactionReceipt({ hash });
   const { notifyToast, updateToast, dismissToast } = useToastActions();
 
+  // Open the pending toast once, as soon as the tx is submitted and has a hash.
   useEffect(() => {
     if (hash && hash !== notifiedHash.current) {
       notifyToast(hash, title);
@@ -30,6 +31,7 @@ export const useTransactionToast = ({
     }
   }, [hash, notifyToast, title]);
 
+  // Tx confirmed: let the toast auto-close and run the caller's success callback.
   useEffect(() => {
     if (receipt.data?.status === 'success') {
       updateToast();
@@ -37,8 +39,8 @@ export const useTransactionToast = ({
     }
   }, [receipt.data, updateToast, onConfirmed]);
 
-  // A reverted tx still resolves the receipt (it is not an error), so a status check
-  // is the only reliable way to catch it — react-query's error/failureReason won't fire.
+  // Tx mined but reverted on-chain: a reverted receipt still resolves (not an error),
+  // so a status check is the only reliable way to catch it — error/failureReason won't fire.
   useEffect(() => {
     if (receipt.data?.status === 'reverted') {
       dismissToast();
@@ -46,12 +48,14 @@ export const useTransactionToast = ({
     }
   }, [receipt.data, dismissToast]);
 
+  // Never submitted: wallet/RPC rejected the write (e.g. user declined in the wallet).
   useEffect(() => {
     if (error) {
       toast(toErrorMessage(error));
     }
   }, [error]);
 
+  // Receipt lookup failed (RPC/timeout): drop the pending toast and surface the error.
   useEffect(() => {
     if (receipt.error) {
       dismissToast();
