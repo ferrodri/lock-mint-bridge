@@ -134,6 +134,25 @@
   --sidebar-ring: #6e73e8;
 }
 
+/* react-toastify — map toasts onto the Arkiv popover tokens (theme-aware) and add a
+ * visible border so they stand out against the near-black/sand backgrounds. */
+:root {
+  --toastify-color-light: var(--popover);
+  --toastify-color-dark: var(--popover);
+  --toastify-text-color-light: var(--popover-foreground);
+  --toastify-text-color-dark: var(--popover-foreground);
+}
+
+.Toastify__toast {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.Toastify__close-button {
+  color: var(--popover-foreground);
+  opacity: 0.6;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
