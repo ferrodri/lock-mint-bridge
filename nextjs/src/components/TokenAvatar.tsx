@@ -13,7 +13,9 @@ export const TokenAvatar = ({ symbol, chainLogo, ringClassName = 'ring-card' }: 
       <div className="bg-secondary text-secondary-foreground flex size-8 items-center justify-center rounded-full text-[9px] font-bold tracking-tight">
         {symbol}
       </div>
-      <span className={cn('absolute -right-0.5 -bottom-0.5 flex rounded-full ring-2', ringClassName)}>{chainLogo}</span>
+      <span className={cn('absolute -right-0.5 -bottom-0.5 flex overflow-hidden rounded-full ring-2', ringClassName)}>
+        {chainLogo}
+      </span>
     </div>
   );
 };
