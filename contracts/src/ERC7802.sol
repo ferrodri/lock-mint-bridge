@@ -15,7 +15,7 @@ contract ERC7802Token is ERC20Bridgeable, Ownable {
 
     error NotTokenBridge(address caller);
 
-    constructor() ERC20("Equivalent Token Chain B", "ETCB") Ownable(msg.sender) {}
+    constructor() ERC20("Lock-Mint Token", "LMT") Ownable(msg.sender) {}
 
     function setTokenBridge(address tokenBridge_) external onlyOwner {
         tokenBridge = tokenBridge_;
