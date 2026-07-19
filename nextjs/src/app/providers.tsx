@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { WagmiProvider, http } from 'wagmi';
-import { optimismSepolia } from 'wagmi/chains';
+import { baseSepolia, optimismSepolia } from 'wagmi/chains';
 
 // Arkiv Blue — keeps RainbowKit's modal accent on-brand.
 const ARKIV_BLUE = '#181EA9';
@@ -16,10 +16,10 @@ const ARKIV_BLUE = '#181EA9';
 const wagmiConfig = getDefaultConfig({
   appName: 'Lock-Mint Bridge',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-  // The user only signs the lock tx on OP Sepolia; the Base Sepolia mint is handled by the relayer.
-  chains: [optimismSepolia],
+  chains: [optimismSepolia, baseSepolia],
   transports: {
-    [optimismSepolia.id]: http()
+    [optimismSepolia.id]: http(),
+    [baseSepolia.id]: http()
   },
   ssr: true
 });
@@ -56,6 +56,7 @@ const ThemedProviders = ({ children }: ProvidersProps) => {
       <RainbowKitProvider
         theme={isDark ? darkTheme({ accentColor: ARKIV_BLUE }) : lightTheme({ accentColor: ARKIV_BLUE })}
         modalSize="compact"
+        initialChain={optimismSepolia}
       >
         {children}
       </RainbowKitProvider>
