@@ -20,6 +20,12 @@ export function formatBalance(value: bigint | undefined, decimals = 18): string 
   return amount.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
+export function formatCountdown(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 // viem/wagmi errors carry a concise `shortMessage`; prefer it over the raw message.
 export function toErrorMessage(error: unknown): string {
   if (error instanceof BaseError) {
