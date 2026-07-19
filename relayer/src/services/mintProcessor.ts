@@ -1,11 +1,10 @@
 import type { FastifyBaseLogger } from 'fastify';
 import { sql } from 'kysely';
 import type { Hex } from 'viem';
+import { CLAIM_BATCH } from '../config/chains';
 import type { AppEnv } from '../config/env';
 import type { AppDb } from '../db/kysely';
 import type { MintSender } from './mintSender';
-
-const CLAIM_BATCH = 25;
 
 interface ClaimedLock {
   id: string;

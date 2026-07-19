@@ -32,3 +32,7 @@ export const DEST_STUCK_TIMEOUT_MS = 15_000;
 
 // How often the fee cache refetches estimateFeesPerGas for the destination chain.
 export const FEE_REFRESH_MS = 12_000;
+
+// Max rows a single poller tick pulls: the verifier per finality check, the processor per claim.
+// Bounds work (and nonce reservations) per tick; a backlog drains over successive ticks.
+export const CLAIM_BATCH = 25;
