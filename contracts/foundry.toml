@@ -9,6 +9,14 @@ build_info = true
 extra_output = ['storageLayout']
 auto_detect_solc = true
 
+[rpc_endpoints]
+op-sepolia = "${CHAIN_A_RPC_URL}"
+base-sepolia = "${CHAIN_B_RPC_URL}"
+
+[etherscan]
+op-sepolia = { key = "${ETHERSCAN_API_KEY}", chain = 11155420 }
+base-sepolia = { key = "${ETHERSCAN_API_KEY}", chain = 84532 }
+
 [soldeer]
 remappings_generate = false
 
