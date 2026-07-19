@@ -1,26 +1,30 @@
 'use client';
 
 import { TOKEN_B_ABI } from '@/lib/abis/tokenB';
-import { useReadContracts } from 'wagmi';
-import { baseSepolia } from 'wagmi/chains';
+import { baseSepoliaClient } from '@/lib/publicClients';
+import { useQuery } from '@tanstack/react-query';
 import { useTokenBContract } from './useTokenBContract';
 
 export function useTokenBMetadata() {
   const token = useTokenBContract();
 
-  const metadata = useReadContracts({
-    contracts: [
-      { address: token, abi: TOKEN_B_ABI, functionName: 'symbol', chainId: baseSepolia.id },
-      { address: token, abi: TOKEN_B_ABI, functionName: 'decimals', chainId: baseSepolia.id }
-    ],
+  const metadata = useQuery({
+    queryKey: ['tokenB-metadata', token],
+    queryFn: async () => {
+      const [symbol, decimals] = await Promise.all([
+        baseSepoliaClient.readContract({ address: token, abi: TOKEN_B_ABI, functionName: 'symbol' }),
+        baseSepoliaClient.readContract({ address: token, abi: TOKEN_B_ABI, functionName: 'decimals' })
+      ]);
+      return { symbol, decimals };
+    },
+    enabled: Boolean(token),
     // Token symbol/decimals are immutable, so fetch once and never refetch.
-    query: { enabled: Boolean(token), staleTime: Infinity, gcTime: Infinity }
+    staleTime: Infinity,
+    gcTime: Infinity
   });
 
-  const [symbol, decimals] = metadata.data ?? [];
-
   return {
-    symbol: symbol?.result,
-    decimals: decimals?.result
+    symbol: metadata.data?.symbol,
+    decimals: metadata.data?.decimals
   };
 }

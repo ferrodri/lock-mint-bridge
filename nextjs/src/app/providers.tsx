@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { WagmiProvider, http } from 'wagmi';
-import { baseSepolia, optimismSepolia } from 'wagmi/chains';
+import { optimismSepolia } from 'wagmi/chains';
 
 // Arkiv Blue — keeps RainbowKit's modal accent on-brand.
 const ARKIV_BLUE = '#181EA9';
@@ -16,10 +16,11 @@ const ARKIV_BLUE = '#181EA9';
 const wagmiConfig = getDefaultConfig({
   appName: 'Lock-Mint Bridge',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-  chains: [optimismSepolia, baseSepolia],
+  // OP Sepolia is the only supported chain, so any other network (incl. Base Sepolia) is flagged
+  // unsupported and prompts a switch. Token B on Base is read via a standalone viem client.
+  chains: [optimismSepolia],
   transports: {
-    [optimismSepolia.id]: http(),
-    [baseSepolia.id]: http()
+    [optimismSepolia.id]: http()
   },
   ssr: true
 });
