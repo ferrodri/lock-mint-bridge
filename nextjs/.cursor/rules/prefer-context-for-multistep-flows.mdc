@@ -1,0 +1,50 @@
+---
+description: Prefer context over callback prop-drilling for multi-step flows
+globs: src/components/**/*.tsx
+alwaysApply: false
+---
+
+# Prefer Context for Multi-Step Flows
+
+For multi-step or stateful flows (wizards, forms, transaction sequences), do NOT drill
+shared state and `onX` transition callbacks through props. Instead, put the flow state
+and its transitions in a context provider and have each step read what it needs via a
+hook. This keeps step components prop-free and the container thin.
+
+```tsx
+// BAD - confusing callback prop-drilling
+<AmountForm
+  token={token}
+  onSubmitted={(submitted) => {
+    setTransfer(submitted);
+    setStep('confirm');
+  }}
+/>
+
+// GOOD - step reads state + transitions from context
+export const AmountForm = () => {
+  const { token, setStepConfirm } = useFlowContext();
+  // ...on success:
+  setStepConfirm({ token, amount });
+};
+```
+
+Guidelines:
+- One provider owns the flow state (`step`, collected data, error) and exposes named
+  transitions (`setStepConfirm`, `setStepPending`, `setStepComplete`, `setStepError`, `reset`).
+- Keep the raw `setStep` setter private to the provider. Expose one transition per step so
+  callers can't jump to an arbitrary state, and let each transition atomically set the step
+  together with the data that state requires (e.g. `setStepComplete(result)`).
+- The `use*` hook throws when used outside its provider.
+- Render steps from a registry (`STEPS = [{ id, component }]`) keyed by the current step.
+
+When NOT to use this:
+- For shallow (1-2 level) handoffs, prefer explicit props — they are simpler and keep
+  the data flow traceable at the call site. Reach for context only when 3+ steps share
+  state or callbacks would otherwise drill through intermediary components.
+
+Escalation path:
+- The named-transitions pattern is effectively a hand-rolled state machine. When
+  transitions grow complex (guards, many states, conditional edges), formalize it with
+  `useReducer` inside the provider, or a dedicated state-machine library (e.g. XState),
+  rather than accumulating ad-hoc `useState` flags.

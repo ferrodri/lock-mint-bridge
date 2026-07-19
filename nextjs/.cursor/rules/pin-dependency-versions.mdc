@@ -1,0 +1,47 @@
+---
+description: Pin exact, fully-qualified dependency versions
+alwaysApply: true
+---
+
+# Pin Dependency Versions
+
+When installing or adding dependencies, always pin exact, fully-qualified semver versions.
+
+- No range specifiers: never use `^`, `~`, `>=`, `*`, `x`, or `latest`.
+- Always use the full `MAJOR.MINOR.PATCH` form, never partial versions.
+- Prefer the latest stable release that is compatible with the rest of the
+  stack. "Latest" means latest *compatible* — check peer dependencies before
+  jumping to a brand-new major (e.g. don't pair `eslint@10` with plugins that
+  only support `^9`, or `typescript@7` with tooling capped at `<6.1.0`).
+- Apply this to both `dependencies` and `devDependencies` in `package.json`.
+
+## Installing
+
+Use the exact-version flag so nothing is written with a range:
+
+```bash
+pnpm add -E react@19.2.7
+pnpm add -DE typescript@7.0.2
+```
+
+## Examples
+
+```json
+// ❌ BAD — ranges and partial versions
+{
+  "dependencies": {
+    "react": "^19",
+    "next": "16.x",
+    "typescript": "latest"
+  }
+}
+
+// ✅ GOOD — exact, fully-qualified versions
+{
+  "dependencies": {
+    "react": "19.2.7",
+    "next": "16.2.10",
+    "typescript": "7.0.2"
+  }
+}
+```

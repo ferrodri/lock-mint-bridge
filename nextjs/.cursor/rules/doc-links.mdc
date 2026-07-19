@@ -1,0 +1,33 @@
+---
+description: Link external docs with a JSDoc @see {@link} tag instead of a bare URL comment
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Doc Links
+
+When referencing external documentation in code (API endpoint references, library
+guides, specs, standards, etc.), link it with a JSDoc block using the `@see` block
+tag and an inline `{@link}` pointing to the exact URL. Never use a bare `//` URL comment.
+
+- Use `@see {@link <url>}` (the `@see` block tag with the `{@link}` inline tag).
+- Do NOT use `@link` as a block tag, and do NOT omit the space (`@see{...}` is wrong).
+- One `@see` line per URL.
+- Applies everywhere, not just one layer: hooks, providers, config, utils, etc.
+  This includes third-party APIs, RPC providers, and EIP/ERC standards.
+
+```typescript
+// ❌ BAD — bare URL comment
+// https://eips.ethereum.org/EIPS/eip-7802
+const crosschainMint = async () => { /* ... */ };
+
+// ❌ BAD — @link as a block tag, or missing space after @see
+/** @see{https://eips.ethereum.org/EIPS/eip-7802} */
+const crosschainMint = async () => { /* ... */ };
+
+// ✅ GOOD
+/**
+ * @see {@link https://eips.ethereum.org/EIPS/eip-7802}
+ */
+const crosschainMint = async () => { /* ... */ };
+```

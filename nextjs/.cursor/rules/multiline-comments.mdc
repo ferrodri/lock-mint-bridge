@@ -1,0 +1,35 @@
+---
+description: Use /** */ block comments for multi-line comments instead of stacked // lines
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Multi-line Comments
+
+When a comment spans more than one line, use a JSDoc-style `/** ... */` block instead
+of multiple stacked `//` lines. Single-line comments stay as `//`.
+
+- 2+ lines -> `/** ... */`, each inner line prefixed with ` * `.
+- 1 line -> `//` is fine.
+- Applies to explanatory/doc comments on functions, components, hooks, and constants.
+
+```typescript
+// ❌ BAD — stacked single-line comments
+// Self-updating toast body: shows a spinner while the tx is pending, then swaps
+// to a success message with a block-explorer link once it confirms.
+export const ToastTransaction = () => {
+  /* ... */
+};
+
+// ✅ GOOD — one line stays //
+// Force CLASSIC routing so we get a broadcastable transaction.
+
+// ✅ GOOD — 2+ lines use a block
+/**
+ * Self-updating toast body: shows a spinner while the tx is pending, then swaps
+ * to a success message with a block-explorer link once it confirms.
+ */
+export const ToastTransaction = () => {
+  /* ... */
+};
+```

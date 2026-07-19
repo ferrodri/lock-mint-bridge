@@ -1,0 +1,35 @@
+---
+description: Name context consumer hooks use<Name>Context
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Context Hook Naming
+
+The hook that reads a React Context via `useContext` MUST be named `use<Name>Context`,
+matching its provider `<Name>Provider`. This makes it obvious at the call site that the
+value comes from a context (and therefore requires a provider above it), and it avoids
+colliding with plain data/feature hooks that happen to share the domain name.
+
+```tsx
+// BAD - reads like a generic data hook, hides the provider dependency
+export function useCheckout() {
+  const ctx = useContext(CheckoutContext);
+  if (!ctx) throw new Error('useCheckout must be used within CheckoutProvider');
+  return ctx;
+}
+
+// GOOD - name mirrors the provider and signals a context read
+export function useCheckoutContext() {
+  const ctx = useContext(CheckoutContext);
+  if (!ctx) throw new Error('useCheckoutContext must be used within CheckoutProvider');
+  return ctx;
+}
+```
+
+Guidelines:
+- Provider `FooProvider` → context `FooContext` → hook `useFooContext`.
+- The hook throws when used outside its provider, and the error message references the
+  hook's own name so the failing call is easy to trace.
+- Reserve bare `use<Feature>` names (e.g. `useCheckout`) for hooks that encapsulate
+  behavior/data-fetching, not for a raw context accessor.

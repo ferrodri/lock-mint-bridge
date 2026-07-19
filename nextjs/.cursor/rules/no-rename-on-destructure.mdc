@@ -1,0 +1,31 @@
+---
+description: Don't rename variables on destructure; keep the source's names
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Preserve Original Names
+
+Keep the names that hooks, libraries, and functions give you. Renaming on
+destructure hides where a value comes from and makes the code harder to follow.
+
+- Do **not** alias destructured properties (`const { isPending: isSending }`).
+- If two sources would collide, keep the whole object under a descriptive name
+  and access its properties (as we already do with `quoteQuery.data`), rather
+  than aliasing.
+- Only rename when it's genuinely necessary (an unavoidable name clash you can't
+  resolve by namespacing).
+
+```ts
+// ❌ BAD - aliasing clear names into new ones
+const { sendTransactionAsync, isPending: isSending } = useSendTransaction();
+const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+// ✅ GOOD - keep the source's names
+const { sendTransactionAsync, isPending } = useSendTransaction();
+const { isSuccess } = useWaitForTransactionReceipt({ hash });
+
+// ✅ GOOD - namespace instead of aliasing when names would collide
+const receiptQuery = useWaitForTransactionReceipt({ hash });
+receiptQuery.data; // clear origin, no rename
+```

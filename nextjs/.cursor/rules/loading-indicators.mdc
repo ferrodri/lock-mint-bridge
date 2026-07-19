@@ -1,0 +1,30 @@
+---
+description: Loading/pending states show a spinner only, never status text
+globs: **/*.tsx
+alwaysApply: false
+---
+
+# Loading Indicators
+
+Loading and pending states must show a **spinner only**. Never render textual
+status such as "Approving...", "Swapping...", "Processing...", or "Loading...".
+
+Use the `Loader2` icon from `lucide-react` with `animate-spin` (size to context).
+
+```tsx
+// ❌ BAD - verbose status text (and branching on which action is pending)
+{busy ? (
+  <>
+    <Loader2 className="size-4 animate-spin" />
+    {isApproving ? 'Approving...' : 'Swapping...'}
+  </>
+) : (
+  label
+)}
+
+// ❌ BAD - text-only pending state
+{loading ? 'Processing...' : label}
+
+// ✅ GOOD - spinner only
+{busy ? <Loader2 className="size-4 animate-spin" /> : label}
+```
