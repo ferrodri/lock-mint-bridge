@@ -1,6 +1,7 @@
 'use client';
 
 import { useTokenAMetadata } from '@/hooks/useTokenAMetadata';
+import { isUserRejection } from '@/lib/utils';
 import { useCallback } from 'react';
 import { type Hex, parseUnits } from 'viem';
 import type { useApproval } from './useApproval';
@@ -18,6 +19,7 @@ export type BridgeActions = {
   setStepLocking: () => void;
   setLockHash: (hash: Hex) => void;
   setStepWaiting: () => void;
+  pause: () => void;
   fail: (step: FailedStep) => void;
 };
 
@@ -60,8 +62,13 @@ export function useBridge({ amount, approval, locking, actions }: UseBridgeArgs)
         return;
       }
       actions.setStepWaiting();
-    } catch {
-      // Rejections and reverts already surface through the transaction toasts; keep the user in place to retry.
+    } catch (error) {
+      // A wallet rejection is a cancel, not a failure: stay on the current step so a done approval is kept
+      // and the user can retry in place. Real problems (RPC/receipt errors) fall through to the error phase.
+      if (isUserRejection(error)) {
+        actions.pause();
+        return;
+      }
       actions.fail(step);
     }
   }, [amount, decimals, hasAllowance, approve, lock, actions]);

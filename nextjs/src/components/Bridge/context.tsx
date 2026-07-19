@@ -14,6 +14,7 @@ type BridgeContextValue = {
   lockHash?: Hex;
   receivedAmount?: bigint;
   failedStep?: FailedStep;
+  busy: boolean;
   setAmount: (value: string) => void;
   bridge: () => Promise<void>;
   complete: () => void;
@@ -41,12 +42,15 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
   const [lockHash, setLockHash] = useState<Hex>();
   const [receivedAmount, setReceivedAmount] = useState<bigint>();
   const [failedStep, setFailedStep] = useState<FailedStep>();
+  // A tx is in flight (awaiting wallet/confirmation). Drives the step spinner and disables the CTA.
+  const [busy, setBusy] = useState(false);
 
   const begin = useCallback((received: bigint) => {
     setReceivedAmount(received);
     setApproveHash(undefined);
     setLockHash(undefined);
     setFailedStep(undefined);
+    setBusy(true);
   }, []);
 
   const setStepApproving = useCallback(() => setPhase('approving'), []);
@@ -55,19 +59,27 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setStepWaiting = useCallback(() => {
     setPhase('waiting');
+    setBusy(false);
     setRefetchBalances(true);
   }, [setRefetchBalances]);
 
+  // User rejected the signature: stop the spinner but stay on the current step so progress (e.g. a done
+  // approval) is preserved and they can retry in place — never bounce back to the form.
+  const pause = useCallback(() => setBusy(false), []);
   const fail = useCallback((step: FailedStep) => {
     setFailedStep(step);
+    setBusy(false);
     setPhase('error');
   }, []);
 
-  const complete = useCallback(() => setPhase('complete'), []);
+  const complete = useCallback(() => {
+    setBusy(false);
+    setPhase('complete');
+  }, []);
 
   const actions = useMemo(
-    () => ({ begin, setStepApproving, setApproveHash, setStepLocking, setLockHash, setStepWaiting, fail }),
-    [begin, setStepApproving, setStepLocking, setStepWaiting, fail]
+    () => ({ begin, setStepApproving, setApproveHash, setStepLocking, setLockHash, setStepWaiting, pause, fail }),
+    [begin, setStepApproving, setStepLocking, setStepWaiting, pause, fail]
   );
 
   const bridge = useBridge({ amount, approval, locking, actions });
@@ -82,13 +94,26 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
     setLockHash(undefined);
     setReceivedAmount(undefined);
     setFailedStep(undefined);
+    setBusy(false);
     resetApproval();
     resetLocking();
   }, [resetApproval, resetLocking]);
 
   const value = useMemo(
-    () => ({ phase, amount, approveHash, lockHash, receivedAmount, failedStep, setAmount, bridge, complete, reset }),
-    [phase, amount, approveHash, lockHash, receivedAmount, failedStep, bridge, complete, reset]
+    () => ({
+      phase,
+      amount,
+      approveHash,
+      lockHash,
+      receivedAmount,
+      failedStep,
+      busy,
+      setAmount,
+      bridge,
+      complete,
+      reset
+    }),
+    [phase, amount, approveHash, lockHash, receivedAmount, failedStep, busy, bridge, complete, reset]
   );
 
   return <BridgeContext.Provider value={value}>{children}</BridgeContext.Provider>;

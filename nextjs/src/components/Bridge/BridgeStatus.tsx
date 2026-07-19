@@ -1,9 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useGuardedAction } from '@/hooks/useGuardedAction';
 import { useTokenBMetadata } from '@/hooks/useTokenBMetadata';
 import { cn, formatBalance, formatCountdown } from '@/lib/utils';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, RotateCcw, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { optimismSepolia } from 'wagmi/chains';
 import { useBridgeContext } from './context';
@@ -14,12 +15,20 @@ const HEADLINE: Record<string, string> = {
   approving: 'Approving token',
   locking: 'Locking on OP Sepolia',
   waiting: 'Waiting for destination chain',
-  complete: 'Bridge successful'
+  complete: 'Bridge successful',
+  error: 'Bridge failed'
 };
 
 export const BridgeStatus = () => {
-  const { phase, approveHash, lockHash, receivedAmount, reset } = useBridgeContext();
+  const { phase, approveHash, lockHash, receivedAmount, failedStep, busy, bridge, reset } = useBridgeContext();
   const { symbol, decimals } = useTokenBMetadata();
+  const retryLabel =
+    phase === 'approving' || failedStep === 'approving'
+      ? 'Retry approve'
+      : phase === 'locking' || failedStep === 'locking'
+        ? 'Retry lock'
+        : 'Retry';
+  const cta = useGuardedAction(() => bridge(), retryLabel);
   useRelay();
 
   const [secondsLeft, setSecondsLeft] = useState(Math.round(DESTINATION_MOCK_MS / 1000));
@@ -33,11 +42,18 @@ export const BridgeStatus = () => {
   }, [phase]);
 
   const explorer = optimismSepolia.blockExplorers.default.url;
-  // Approval is skipped when the allowance already covers the amount, so only show the row when it runs.
-  const approvalUsed = phase === 'approving' || approveHash !== undefined;
-  const approveConfirmed = phase === 'locking' || phase === 'waiting' || phase === 'complete';
+  const isError = phase === 'error';
+  const isStep = phase === 'approving' || phase === 'locking';
+  // Rejected/dropped mid-step: no tx in flight, but we hold the step so progress is kept and they can retry.
+  const paused = isStep && !busy;
+  const approveFailed = isError && failedStep === 'approving';
+  const lockFailed = isError && failedStep === 'locking';
+  // A lock failure implies approval already went through.
+  const approveConfirmed = phase === 'locking' || phase === 'waiting' || phase === 'complete' || lockFailed;
   const lockConfirmed = phase === 'waiting' || phase === 'complete';
   const minted = phase === 'complete';
+  // Approval is skipped when the allowance already covers the amount, so only show the row when it runs.
+  const approvalUsed = phase === 'approving' || approveHash !== undefined || approveFailed;
   const approveUrl = approveHash ? `${explorer}/tx/${approveHash}` : undefined;
   const lockUrl = lockHash ? `${explorer}/tx/${lockHash}` : undefined;
 
@@ -47,12 +63,22 @@ export const BridgeStatus = () => {
         <div
           className={cn(
             'flex size-16 items-center justify-center rounded-full',
-            minted ? 'bg-primary/15 text-primary' : 'bg-secondary/60 text-muted-foreground'
+            minted && 'bg-primary/15 text-primary',
+            isError && 'bg-destructive/15 text-destructive',
+            !minted && !isError && 'bg-secondary/60 text-muted-foreground'
           )}
         >
-          {minted ? <Check size={30} /> : <Loader2 size={30} className="animate-spin" />}
+          {minted ? (
+            <Check size={30} />
+          ) : isError ? (
+            <X size={30} />
+          ) : paused ? (
+            <RotateCcw size={28} />
+          ) : (
+            <Loader2 size={30} className="animate-spin" />
+          )}
         </div>
-        <span className="text-lg font-bold">{HEADLINE[phase]}</span>
+        <span className="text-lg font-bold">{paused ? 'Resume your bridge' : HEADLINE[phase]}</span>
         {phase === 'waiting' && (
           <span className="text-muted-foreground text-sm tabular-nums">{formatCountdown(secondsLeft)}</span>
         )}
@@ -60,12 +86,12 @@ export const BridgeStatus = () => {
 
       <div className="flex w-full flex-col gap-2">
         {approvalUsed && (
-          <StatusRow done={approveConfirmed} pending={phase === 'approving'} href={approveUrl}>
-            Approve transaction confirmed
+          <StatusRow done={approveConfirmed} pending={phase === 'approving' && busy} failed={approveFailed} href={approveUrl}>
+            {approveFailed ? 'Approval failed' : 'Approve transaction confirmed'}
           </StatusRow>
         )}
-        <StatusRow done={lockConfirmed} pending={phase === 'locking'} href={lockUrl}>
-          Lock transaction confirmed
+        <StatusRow done={lockConfirmed} pending={phase === 'locking' && busy} failed={lockFailed} href={lockUrl}>
+          {lockFailed ? 'Lock failed' : 'Lock transaction confirmed'}
         </StatusRow>
         <StatusRow done={minted} pending={phase === 'waiting'}>
           Minted on Base Sepolia
@@ -81,9 +107,26 @@ export const BridgeStatus = () => {
         </div>
       )}
 
+      {isStep && (
+        <Button
+          type="button"
+          onClick={cta.onClick}
+          disabled={busy}
+          className="h-auto w-full rounded-full py-3 text-sm font-semibold"
+        >
+          {busy ? <Loader2 className="size-4 animate-spin" /> : cta.label}
+        </Button>
+      )}
+
       {minted && (
         <Button type="button" onClick={reset} className="h-auto w-full rounded-full py-3 text-sm font-semibold">
           Done
+        </Button>
+      )}
+
+      {isError && (
+        <Button type="button" onClick={cta.onClick} className="h-auto w-full rounded-full py-3 text-sm font-semibold">
+          {cta.label}
         </Button>
       )}
     </div>

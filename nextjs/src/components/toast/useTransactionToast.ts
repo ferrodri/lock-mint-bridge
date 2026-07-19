@@ -1,7 +1,7 @@
 'use client';
 
 import { useToastActions } from '@/components/toast/useToastActions';
-import { toErrorMessage } from '@/lib/utils';
+import { isUserRejection, toErrorMessage } from '@/lib/utils';
 import { useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useWaitForTransactionReceipt } from 'wagmi';
@@ -48,9 +48,9 @@ export const useTransactionToast = ({
     }
   }, [receipt.data, dismissToast]);
 
-  // Never submitted: wallet/RPC rejected the write (e.g. user declined in the wallet).
+  // Write failed before landing (RPC error, etc.). A user rejection is a cancel, not a failure — stay silent.
   useEffect(() => {
-    if (error) {
+    if (error && !isUserRejection(error)) {
       toast(toErrorMessage(error));
     }
   }, [error]);

@@ -1,9 +1,14 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { BaseError, formatUnits } from 'viem';
+import { BaseError, formatUnits, UserRejectedRequestError } from 'viem';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+// A wallet rejection (user declined the signature) is a cancel, not a failure — callers ignore it silently.
+export function isUserRejection(error: unknown): boolean {
+  return error instanceof BaseError && Boolean(error.walk((e) => e instanceof UserRejectedRequestError));
 }
 
 export function formatBalance(value: bigint | undefined, decimals = 18): string {
