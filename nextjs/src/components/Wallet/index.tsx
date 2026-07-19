@@ -1,5 +1,6 @@
 'use client';
 
+import { BaseLogo, OptimismLogo } from '@/components/ui/chain-logos';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useBalanceOfTokenA } from '@/hooks/useBalanceOfTokenA';
@@ -12,6 +13,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Copy, PlusCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAccount, useWatchAsset } from 'wagmi';
+import { TokenBalanceRow } from '@/components/TokenBalanceRow';
 import { Disconnect } from './Disconnect';
 import { SwitchNetwork } from './SwitchNetwork';
 
@@ -51,15 +53,17 @@ export const Wallet = () => {
               {address && shortAddress({ address, startLength: 6, endLength: 4 })}
             </PopoverTrigger>
             <PopoverContent align="end" className="w-64">
-              <div className="flex items-center justify-between px-3 py-2 text-sm">
-                <span className="text-muted-foreground">{symbol ?? 'LTCA'} on OP Sepolia</span>
-                <span className="font-medium tabular-nums">{formatBalance(tokenA, decimals)}</span>
-              </div>
+              <TokenBalanceRow
+                symbol={symbol ?? 'LTCA'}
+                balance={formatBalance(tokenA, decimals)}
+                chainLogo={<OptimismLogo className="size-4" />}
+              />
 
-              <div className="flex items-center justify-between px-3 py-2 text-sm">
-                <span className="text-muted-foreground">{symbolB ?? 'ETCB'} on Base Sepolia</span>
-                <span className="font-medium tabular-nums">{formatBalance(tokenB, decimalsB)}</span>
-              </div>
+              <TokenBalanceRow
+                symbol={symbolB ?? 'ETCB'}
+                balance={formatBalance(tokenB, decimalsB)}
+                chainLogo={<BaseLogo className="size-4" />}
+              />
 
               <div className="bg-foreground/10 my-1 h-px w-full" />
 
