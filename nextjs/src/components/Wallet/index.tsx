@@ -3,8 +3,10 @@
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useBalanceOfTokenA } from '@/hooks/useBalanceOfTokenA';
+import { useBalanceOfTokenB } from '@/hooks/useBalanceOfTokenB';
 import { useTokenAContract } from '@/hooks/useTokenAContract';
 import { useTokenAMetadata } from '@/hooks/useTokenAMetadata';
+import { useTokenBMetadata } from '@/hooks/useTokenBMetadata';
 import { formatBalance, shortAddress } from '@/lib/utils';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Copy, PlusCircle } from 'lucide-react';
@@ -19,6 +21,8 @@ export const Wallet = () => {
   const token = useTokenAContract();
   const tokenA = useBalanceOfTokenA();
   const { symbol, decimals } = useTokenAMetadata();
+  const tokenB = useBalanceOfTokenB();
+  const { symbol: symbolB, decimals: decimalsB } = useTokenBMetadata();
 
   return (
     <ConnectButton.Custom>
@@ -48,8 +52,13 @@ export const Wallet = () => {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-64">
               <div className="flex items-center justify-between px-3 py-2 text-sm">
-                <span className="text-muted-foreground">{symbol}</span>
+                <span className="text-muted-foreground">{symbol ?? 'LTCA'} on OP Sepolia</span>
                 <span className="font-medium tabular-nums">{formatBalance(tokenA, decimals)}</span>
+              </div>
+
+              <div className="flex items-center justify-between px-3 py-2 text-sm">
+                <span className="text-muted-foreground">{symbolB ?? 'ETCB'} on Base Sepolia</span>
+                <span className="font-medium tabular-nums">{formatBalance(tokenB, decimalsB)}</span>
               </div>
 
               <div className="bg-foreground/10 my-1 h-px w-full" />
