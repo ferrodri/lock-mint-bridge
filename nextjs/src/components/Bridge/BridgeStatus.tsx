@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { optimismSepolia } from 'wagmi/chains';
 import { useBridgeContext } from './context';
 import { StatusRow } from './StatusRow';
-import { DESTINATION_MOCK_MS } from './useBridgeTransfer';
+import { DESTINATION_MOCK_MS, useRelay } from './useRelay';
 
 const HEADLINE: Record<string, string> = {
   approving: 'Approving token',
@@ -20,6 +20,7 @@ const HEADLINE: Record<string, string> = {
 export const BridgeStatus = () => {
   const { phase, approveHash, lockHash, receivedAmount, reset } = useBridgeContext();
   const { symbol, decimals } = useTokenBMetadata();
+  useRelay();
 
   const [secondsLeft, setSecondsLeft] = useState(Math.round(DESTINATION_MOCK_MS / 1000));
 
