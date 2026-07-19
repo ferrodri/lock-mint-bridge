@@ -24,9 +24,10 @@ export interface DecodedLock {
 }
 
 export type DecodeResult =
-  | { status: 'not_found' } // tx not visible to our RPC yet (retriable)
-  | { status: 'invalid'; reason: string } // reverted or not a lock for this bridge (terminal)
-  | { status: 'ok'; lock: DecodedLock };
+  | { status: 'not_found' } // no receipt: unknown/bad hash, or not visible to our RPC yet (retriable)
+  | { status: 'reverted' } // lock tx reverted on the source chain
+  | { status: 'not_a_lock' } // tx succeeded but emitted no MessageSent from our gateway for our bridge
+  | { status: 'success'; lock: DecodedLock };
 
 // The relayer is the security boundary: a frontend POST is untrusted, so we pull the lock tx from
 // the source chain and confirm it emitted a MessageSent from our gateway for our bridge before we
@@ -39,7 +40,7 @@ export async function decodeLockReceipt(client: PublicClient, hash: Hex): Promis
     return { status: 'not_found' };
   }
 
-  if (receipt.status !== 'success') return { status: 'invalid', reason: 'lock tx reverted' };
+  if (receipt.status === 'reverted') return { status: 'reverted' };
 
   for (const log of receipt.logs) {
     if (!isAddressEqual(log.address, CONTRACTS.sourceGateway)) continue;
@@ -72,7 +73,7 @@ export async function decodeLockReceipt(client: PublicClient, hash: Hex): Promis
     }
 
     return {
-      status: 'ok',
+      status: 'success',
       lock: {
         sendId,
         // Payload recipient is consumed on-chain as address(bytes20(toBinary)) — the LEADING 20 bytes
@@ -86,5 +87,5 @@ export async function decodeLockReceipt(client: PublicClient, hash: Hex): Promis
     };
   }
 
-  return { status: 'invalid', reason: 'no valid MessageSent for this bridge in lock tx' };
+  return { status: 'not_a_lock' };
 }
