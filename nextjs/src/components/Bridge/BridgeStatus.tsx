@@ -76,7 +76,7 @@ export const BridgeStatus = () => {
         <div className="bg-secondary/40 border-border flex w-full flex-col gap-1 rounded-xl border p-4">
           <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">Received</span>
           <span className="text-2xl font-bold tabular-nums">
-            {formatBalance(receivedAmount, decimals)} <span className="text-base font-medium">{symbol ?? 'ETCB'}</span>
+            {formatBalance(receivedAmount, decimals)} <span className="text-base font-medium">{symbol ?? '—'}</span>
           </span>
         </div>
       )}

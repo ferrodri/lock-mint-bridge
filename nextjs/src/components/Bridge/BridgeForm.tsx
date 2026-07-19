@@ -20,7 +20,7 @@ export const BridgeForm = () => {
   const { symbol: symbolB } = useTokenBMetadata();
 
   const cta = useGuardedAction(() => bridge(), 'Bridge');
-  const symbolA = symbol ?? 'LTCA';
+  const symbolA = symbol ?? '—';
   const tokenDecimals = decimals ?? 18;
 
   const parsed = /^\d+(\.\d+)?$/.test(amount) ? parseUnits(amount, tokenDecimals) : 0n;
@@ -87,8 +87,8 @@ export const BridgeForm = () => {
         <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">You receive</span>
         <div className="bg-secondary/40 border-border flex items-center justify-between rounded-xl border px-3 py-3">
           <div className="flex items-center gap-2">
-            <TokenAvatar symbol={symbolB ?? 'ETCB'} chainLogo={<BaseLogo className="size-4" />} />
-            <span className="text-sm font-semibold">{symbolB ?? 'ETCB'}</span>
+            <TokenAvatar symbol={symbolB ?? '—'} chainLogo={<BaseLogo className="size-4" />} />
+            <span className="text-sm font-semibold">{symbolB ?? '—'}</span>
           </div>
           <span className="text-muted-foreground text-lg font-semibold tabular-nums">{amount || '0.00'}</span>
         </div>

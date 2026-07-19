@@ -54,13 +54,13 @@ export const Wallet = () => {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-64">
               <TokenBalanceRow
-                symbol={symbol ?? 'LTCA'}
+                symbol={symbol ?? '—'}
                 balance={formatBalance(tokenA, decimals)}
                 chainLogo={<OptimismLogo className="size-4" />}
               />
 
               <TokenBalanceRow
-                symbol={symbolB ?? 'ETCB'}
+                symbol={symbolB ?? '—'}
                 balance={formatBalance(tokenB, decimalsB)}
                 chainLogo={<BaseLogo className="size-4" />}
               />
