@@ -14,7 +14,10 @@
     "dev": "pnpm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"pnpm:watch:ts\" \"pnpm:dev:start\"",
     "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js",
     "db:bootstrap": "node --env-file=.env --import tsx scripts/bootstrap-db.mts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "ferrodri",
@@ -38,12 +41,18 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.5",
     "@types/node": "25.9.1",
     "@types/pg": "8.20.0",
     "c8": "11.0.0",
     "concurrently": "9.2.1",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
     "fastify-tsconfig": "3.0.0",
+    "globals": "^17.7.0",
+    "prettier": "3.9.5",
     "tsx": "4.22.3",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.64.0"
   }
 }
