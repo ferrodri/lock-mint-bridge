@@ -2,6 +2,7 @@
 
 import { useTransactionToast } from '@/components/toast/useTransactionToast';
 import { Button } from '@/components/ui/button';
+import { useBalancesContext } from '@/contexts/BalancesContext';
 import { useTokenAContract } from '@/hooks/useTokenAContract';
 import { TOKEN_A_ABI } from '@/lib/abis/tokenA';
 import { Loader2 } from 'lucide-react';
@@ -14,12 +15,16 @@ const MINT_AMOUNT = parseUnits('1000', 18);
 export const Mint = () => {
   const { address, isConnected, chainId } = useAccount();
   const token = useTokenAContract();
+  const { setRefetchBalances } = useBalancesContext();
   const mintTx = useWriteContract();
   const { isConfirming } = useTransactionToast({
     hash: mintTx.data,
     title: 'Minting 1,000 tokens',
     error: mintTx.error,
-    onConfirmed: mintTx.reset
+    onConfirmed: () => {
+      mintTx.reset();
+      setRefetchBalances(true);
+    }
   });
 
   if (!isConnected || chainId !== optimismSepolia.id || !address || !token) {
