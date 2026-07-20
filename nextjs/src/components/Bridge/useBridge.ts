@@ -13,7 +13,7 @@ export type BridgePhase = 'form' | 'approving' | 'locking' | 'waiting' | 'comple
 // can retry in place.
 export type FailedStep = 'approving' | 'locking';
 
-export type BridgeActions = {
+type BridgeActions = {
   begin: (receivedAmount: bigint) => void;
   setStepApproving: () => void;
   setApproveHash: (hash: Hex) => void;
