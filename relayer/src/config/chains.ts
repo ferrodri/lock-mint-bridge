@@ -45,8 +45,8 @@ export const CLAIM_BATCH = 25;
 // without re-fetching the receipt; `confirmations` trails a reorg-prone head and is best-effort.
 export const FINALITY_POLICIES = ['finalized', 'safe', 'confirmations'] as const;
 export type FinalityPolicy = (typeof FINALITY_POLICIES)[number];
-export const FINALITY_POLICY: FinalityPolicy = 'finalized';
-// export const FINALITY_POLICY: FinalityPolicy = 'confirmations';
+// export const FINALITY_POLICY: FinalityPolicy = 'finalized';
+export const FINALITY_POLICY: FinalityPolicy = 'confirmations';
 
 // Only used when FINALITY_POLICY === 'confirmations'.
 export const FINALITY_CONFIRMATIONS = 10n;
@@ -59,5 +59,4 @@ export const POLL_INTERVAL_MS = 5_000;
 export const MAX_VERIFY_AGE_MS = 60 * 60_000;
 
 // Gas limit for the destination deliver() tx.
-// TODO: fixed high default; replace with a per-op average or eth_estimateGas (see TODO.md).
-export const DEST_GAS_LIMIT = 800_000n;
+export const DEST_GAS_LIMIT = 150_000n;
