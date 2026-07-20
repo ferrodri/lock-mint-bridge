@@ -1,0 +1,31 @@
+---
+description: Prefer a single destructured options object over multiple positional parameters
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Prefer Destructured Params
+
+When a function takes more than one argument, accept a single object and
+destructure it. Positional args (especially trailing optional callbacks) force
+the reader to jump to the definition to learn what each value means; named
+fields make the call site self-documenting.
+
+- Two or more params → take one options object and destructure it.
+- A single, obvious param (e.g. `hasAllowance(amount)`) can stay positional.
+- Keep the source's property names at the call site (see
+  `no-rename-on-destructure`).
+
+```ts
+// ❌ BAD — positional args, unclear at the call site
+async function lock(amount: bigint, onHash?: (h: Hex) => void, onSendId?: (s: Hex) => void) {}
+await lock(parsed, actions.setLockHash, actions.setSendId);
+
+// ✅ GOOD — named fields, self-documenting
+async function lock({ amount, onHash, onSendId }: {
+  amount: bigint;
+  onHash?: (h: Hex) => void;
+  onSendId?: (s: Hex) => void;
+}) {}
+await lock({ amount: parsed, onHash: actions.setLockHash, onSendId: actions.setSendId });
+```

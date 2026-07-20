@@ -22,7 +22,15 @@ export function useLock() {
   useTransactionToast({ hash: data, title: `Bridging ${symbol ?? 'token'} to Base Sepolia`, error });
 
   const lock = useCallback(
-    async (amount: bigint, onHash?: (hash: Hex) => void, onSendId?: (sendId: Hex) => void) => {
+    async ({
+      amount,
+      onHash,
+      onSendId
+    }: {
+      amount: bigint;
+      onHash?: (hash: Hex) => void;
+      onSendId?: (sendId: Hex) => void;
+    }) => {
       if (!address || !lockBridge) {
         return false;
       }

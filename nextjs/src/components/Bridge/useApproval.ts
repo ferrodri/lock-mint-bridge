@@ -39,7 +39,7 @@ export function useApproval() {
   );
 
   const approve = useCallback(
-    async (amount: bigint, onHash?: (hash: Hex) => void) => {
+    async ({ amount, onHash }: { amount: bigint; onHash?: (hash: Hex) => void }) => {
       if (!token || !lockBridge) {
         return false;
       }

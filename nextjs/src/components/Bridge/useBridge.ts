@@ -52,14 +52,14 @@ export function useBridge({ amount, approval, locking, actions }: UseBridgeArgs)
       if (!(await hasAllowance(parsed))) {
         step = 'approving';
         actions.setStepApproving();
-        if (!(await approve(parsed, actions.setApproveHash))) {
+        if (!(await approve({ amount: parsed, onHash: actions.setApproveHash }))) {
           actions.fail('approving');
           return;
         }
       }
       step = 'locking';
       actions.setStepLocking();
-      if (!(await lock(parsed, actions.setLockHash, actions.setSendId))) {
+      if (!(await lock({ amount: parsed, onHash: actions.setLockHash, onSendId: actions.setSendId }))) {
         actions.fail('locking');
         return;
       }
