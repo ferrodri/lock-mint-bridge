@@ -46,9 +46,10 @@ export const CLAIM_BATCH = 25;
 export const FINALITY_POLICIES = ['finalized', 'safe', 'confirmations'] as const;
 export type FinalityPolicy = (typeof FINALITY_POLICIES)[number];
 export const FINALITY_POLICY: FinalityPolicy = 'finalized';
+// export const FINALITY_POLICY: FinalityPolicy = 'confirmations';
 
 // Only used when FINALITY_POLICY === 'confirmations'.
-export const FINALITY_CONFIRMATIONS = 15n;
+export const FINALITY_CONFIRMATIONS = 10n;
 
 // Verifier / mint-processor poll cadence.
 export const POLL_INTERVAL_MS = 5_000;
