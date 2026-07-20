@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { optimismSepolia } from 'wagmi/chains';
 import { useBridgeContext } from './context';
 import { StatusRow } from './StatusRow';
-import { DESTINATION_MOCK_MS, useRelay } from './useRelay';
+import { DESTINATION_HINT_MS, useRelay } from './useRelay';
 
 const HEADLINE: Record<string, string> = {
   approving: 'Approving token',
@@ -31,7 +31,7 @@ export const BridgeStatus = () => {
   const cta = useGuardedAction(() => bridge(), retryLabel);
   useRelay();
 
-  const [secondsLeft, setSecondsLeft] = useState(Math.round(DESTINATION_MOCK_MS / 1000));
+  const [secondsLeft, setSecondsLeft] = useState(Math.round(DESTINATION_HINT_MS / 1000));
 
   useEffect(() => {
     if (phase !== 'waiting') {

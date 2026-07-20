@@ -12,6 +12,7 @@ type BridgeContextValue = {
   amount: string;
   approveHash?: Hex;
   lockHash?: Hex;
+  sendId?: Hex;
   receivedAmount?: bigint;
   failedStep?: FailedStep;
   busy: boolean;
@@ -40,6 +41,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
   const [amount, setAmount] = useState('');
   const [approveHash, setApproveHash] = useState<Hex>();
   const [lockHash, setLockHash] = useState<Hex>();
+  const [sendId, setSendId] = useState<Hex>();
   const [receivedAmount, setReceivedAmount] = useState<bigint>();
   const [failedStep, setFailedStep] = useState<FailedStep>();
   // A tx is in flight (awaiting wallet/confirmation). Drives the step spinner and disables the CTA.
@@ -49,6 +51,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
     setReceivedAmount(received);
     setApproveHash(undefined);
     setLockHash(undefined);
+    setSendId(undefined);
     setFailedStep(undefined);
     setBusy(true);
   }, []);
@@ -78,7 +81,17 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const actions = useMemo(
-    () => ({ begin, setStepApproving, setApproveHash, setStepLocking, setLockHash, setStepWaiting, pause, fail }),
+    () => ({
+      begin,
+      setStepApproving,
+      setApproveHash,
+      setStepLocking,
+      setLockHash,
+      setSendId,
+      setStepWaiting,
+      pause,
+      fail
+    }),
     [begin, setStepApproving, setStepLocking, setStepWaiting, pause, fail]
   );
 
@@ -92,6 +105,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
     setAmount('');
     setApproveHash(undefined);
     setLockHash(undefined);
+    setSendId(undefined);
     setReceivedAmount(undefined);
     setFailedStep(undefined);
     setBusy(false);
@@ -105,6 +119,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
       amount,
       approveHash,
       lockHash,
+      sendId,
       receivedAmount,
       failedStep,
       busy,
@@ -113,7 +128,19 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
       complete,
       reset
     }),
-    [phase, amount, approveHash, lockHash, receivedAmount, failedStep, busy, bridge, complete, reset]
+    [
+      phase,
+      amount,
+      approveHash,
+      lockHash,
+      sendId,
+      receivedAmount,
+      failedStep,
+      busy,
+      bridge,
+      complete,
+      reset
+    ]
   );
 
   return <BridgeContext.Provider value={value}>{children}</BridgeContext.Provider>;

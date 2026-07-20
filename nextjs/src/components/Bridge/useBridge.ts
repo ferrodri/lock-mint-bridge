@@ -9,7 +9,8 @@ import type { useLock } from './useLock';
 
 export type BridgePhase = 'form' | 'approving' | 'locking' | 'waiting' | 'complete' | 'error';
 
-// Which write failed, so the status view can flag the right row and let the user retry in place.
+// Which step failed, so the status view can flag the right row. Both are source-chain writes the user
+// can retry in place.
 export type FailedStep = 'approving' | 'locking';
 
 export type BridgeActions = {
@@ -18,6 +19,7 @@ export type BridgeActions = {
   setApproveHash: (hash: Hex) => void;
   setStepLocking: () => void;
   setLockHash: (hash: Hex) => void;
+  setSendId: (sendId: Hex) => void;
   setStepWaiting: () => void;
   pause: () => void;
   fail: (step: FailedStep) => void;
@@ -57,7 +59,7 @@ export function useBridge({ amount, approval, locking, actions }: UseBridgeArgs)
       }
       step = 'locking';
       actions.setStepLocking();
-      if (!(await lock(parsed, actions.setLockHash))) {
+      if (!(await lock(parsed, actions.setLockHash, actions.setSendId))) {
         actions.fail('locking');
         return;
       }
