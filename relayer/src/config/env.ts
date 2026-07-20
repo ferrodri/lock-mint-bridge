@@ -10,7 +10,10 @@ const schema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   SOURCE_RPC_URL: httpRpcUrl,
   DEST_RPC_URL: httpRpcUrl,
-  RELAYER_PRIVATE_KEY: z.string().regex(/^0x[a-fA-F0-9]{64}$/, 'must be 0x-prefixed 32-byte hex')
+  RELAYER_PRIVATE_KEY: z
+    .string()
+    .regex(/^(0x)?[a-fA-F0-9]{64}$/, 'must be a 32-byte hex private key (0x prefix optional)')
+    .transform((k) => (k.startsWith('0x') ? k : `0x${k}`) as `0x${string}`)
 });
 
 export interface AppEnv {
@@ -28,7 +31,7 @@ let cached: AppEnv | null = null;
 export function loadEnv(env: NodeJS.ProcessEnv = process.env): AppEnv {
   if (cached) return cached;
   const parsed = schema.parse(env);
-  const relayerAccount = privateKeyToAccount(parsed.RELAYER_PRIVATE_KEY as `0x${string}`);
+  const relayerAccount = privateKeyToAccount(parsed.RELAYER_PRIVATE_KEY);
 
   cached = {
     databaseUrl: parsed.DATABASE_URL,
