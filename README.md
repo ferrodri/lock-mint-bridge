@@ -150,6 +150,10 @@ I tried to handle errors, network switching, and edge cases: a connect and switc
 - An indexer to cover the cases above and users who interact through scripts, or lock and leave before the lock reaches the relayer DB.
 - On-chain mint failure handling in the UI. I do not handle a failed mint here; the UI only reacts to `minted`. The relayer is responsible for retrying a stuck or failed delivery.
 - Stuck source-tx handling. After a timeout the lock spinner should tell the user their gas may be low and to speed up in their wallet, and I should catch viem's `TransactionReplacedError` so a wallet speed-up or cancel does not strand the UI on the old hash.
+- Mobile responsiveness. The UI is built for desktop; I would make the layout responsive for smaller screens.
+- Number formatting and precision. Amounts already use exact integer (BigInt) math so a value never renders off by a digit, but I would still settle the display rules per context (decimals, significant figures, very large and very small amounts, rounding, locale) and add tests so a shown amount is never subtly wrong.
+- Gas and insufficient ETH. Nothing handles a user who lacks the ETH to cover gas today; the transaction just fails at signing time. I would detect the balance up front, block the action with a clear message, and ideally offer a path to cover fees (a small swap into ETH, or a paymaster so the user can pay in the token they already hold).
+- Smart-account and embedded wallets. Today it is RainbowKit and EOAs only; I would add embedded wallets (e.g. Privy) for email/social onboarding and account abstraction (ERC-4337) to enable gas sponsorship, paying fees in-token, and batching approve and lock into a single signature.
 
 ## Relayer
 
