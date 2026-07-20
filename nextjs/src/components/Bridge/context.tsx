@@ -12,13 +12,14 @@ type BridgeContextValue = {
   amount: string;
   approveHash?: Hex;
   lockHash?: Hex;
+  mintHash?: Hex;
   sendId?: Hex;
   receivedAmount?: bigint;
   failedStep?: FailedStep;
   busy: boolean;
   setAmount: (value: string) => void;
   bridge: () => Promise<void>;
-  complete: () => void;
+  complete: (mintHash?: Hex) => void;
   reset: () => void;
 };
 
@@ -41,6 +42,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
   const [amount, setAmount] = useState('');
   const [approveHash, setApproveHash] = useState<Hex>();
   const [lockHash, setLockHash] = useState<Hex>();
+  const [mintHash, setMintHash] = useState<Hex>();
   const [sendId, setSendId] = useState<Hex>();
   const [receivedAmount, setReceivedAmount] = useState<bigint>();
   const [failedStep, setFailedStep] = useState<FailedStep>();
@@ -51,6 +53,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
     setReceivedAmount(received);
     setApproveHash(undefined);
     setLockHash(undefined);
+    setMintHash(undefined);
     setSendId(undefined);
     setFailedStep(undefined);
     setBusy(true);
@@ -75,7 +78,8 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
     setPhase('error');
   }, []);
 
-  const complete = useCallback(() => {
+  const complete = useCallback((hash?: Hex) => {
+    setMintHash(hash);
     setBusy(false);
     setPhase('complete');
   }, []);
@@ -105,6 +109,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
     setAmount('');
     setApproveHash(undefined);
     setLockHash(undefined);
+    setMintHash(undefined);
     setSendId(undefined);
     setReceivedAmount(undefined);
     setFailedStep(undefined);
@@ -119,6 +124,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
       amount,
       approveHash,
       lockHash,
+      mintHash,
       sendId,
       receivedAmount,
       failedStep,
@@ -133,6 +139,7 @@ export const BridgeProvider = ({ children }: { children: React.ReactNode }) => {
       amount,
       approveHash,
       lockHash,
+      mintHash,
       sendId,
       receivedAmount,
       failedStep,

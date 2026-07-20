@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { type Hex } from 'viem';
 import { useBridgeContext } from './context';
 
 const RELAYER_URL = process.env.NEXT_PUBLIC_RELAYER_URL ?? 'http://localhost:3001';
@@ -14,7 +15,7 @@ const POLL_INTERVAL_MS = 3_000;
 export const DESTINATION_HINT_MS = 30 * 60_000;
 
 type LockStatus = 'pending_verification' | 'pending' | 'minting' | 'minted' | 'failed';
-type LockResponse = { status: LockStatus | 'submitting' };
+type LockResponse = { status: LockStatus | 'submitting'; mintTxHash?: Hex | null };
 
 // Owns the destination leg: submits the lock tx hash to the relayer, then polls for its status and
 // drives the flow to complete once the mint lands. A 404 means the relayer has not recorded the
@@ -61,7 +62,7 @@ export function useRelay() {
       if (!res.ok) {
         throw new Error(`relayer responded ${res.status}`);
       }
-      return (await res.json()) as { status: LockStatus };
+      return (await res.json()) as LockResponse;
     }
   });
 
@@ -70,7 +71,7 @@ export function useRelay() {
       return;
     }
     if (data.status === 'minted') {
-      complete();
+      complete(data.mintTxHash ?? undefined);
     }
   }, [phase, data, complete]);
 }

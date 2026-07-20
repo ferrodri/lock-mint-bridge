@@ -6,7 +6,7 @@ import { useTokenBMetadata } from '@/hooks/useTokenBMetadata';
 import { cn, formatBalance, formatCountdown } from '@/lib/utils';
 import { Check, Loader2, RotateCcw, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { optimismSepolia } from 'wagmi/chains';
+import { baseSepolia, optimismSepolia } from 'wagmi/chains';
 import { useBridgeContext } from './context';
 import { StatusRow } from './StatusRow';
 import { DESTINATION_HINT_MS, useRelay } from './useRelay';
@@ -20,7 +20,7 @@ const HEADLINE: Record<string, string> = {
 };
 
 export const BridgeStatus = () => {
-  const { phase, approveHash, lockHash, receivedAmount, failedStep, busy, bridge, reset } = useBridgeContext();
+  const { phase, approveHash, lockHash, mintHash, receivedAmount, failedStep, busy, bridge, reset } = useBridgeContext();
   const { symbol, decimals } = useTokenBMetadata();
   const retryLabel =
     phase === 'approving' || failedStep === 'approving'
@@ -42,6 +42,7 @@ export const BridgeStatus = () => {
   }, [phase]);
 
   const explorer = optimismSepolia.blockExplorers.default.url;
+  const destExplorer = baseSepolia.blockExplorers.default.url;
   const isError = phase === 'error';
   const isStep = phase === 'approving' || phase === 'locking';
   // Rejected/dropped mid-step: no tx in flight, but we hold the step so progress is kept and they can retry.
@@ -56,6 +57,7 @@ export const BridgeStatus = () => {
   const approvalUsed = phase === 'approving' || approveHash !== undefined || approveFailed;
   const approveUrl = approveHash ? `${explorer}/tx/${approveHash}` : undefined;
   const lockUrl = lockHash ? `${explorer}/tx/${lockHash}` : undefined;
+  const mintUrl = mintHash ? `${destExplorer}/tx/${mintHash}` : undefined;
 
   return (
     <div className="flex flex-col items-center gap-5 py-2">
@@ -93,7 +95,7 @@ export const BridgeStatus = () => {
         <StatusRow done={lockConfirmed} pending={phase === 'locking' && busy} failed={lockFailed} href={lockUrl}>
           {lockFailed ? 'Lock failed' : 'Lock transaction confirmed'}
         </StatusRow>
-        <StatusRow done={minted} pending={phase === 'waiting'}>
+        <StatusRow done={minted} pending={phase === 'waiting'} href={mintUrl}>
           Minted on Base Sepolia
         </StatusRow>
       </div>
