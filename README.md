@@ -278,7 +278,8 @@ Contracts
 
 ```bash
 cd contracts
-forge test
+forge soldeer install  
+forge test -vv
 make Deploy   # needs PRIVATE_KEY, ETHERSCAN_API_KEY, CHAIN_A_RPC_URL, CHAIN_B_RPC_URL
 ```
 
