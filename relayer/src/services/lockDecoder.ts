@@ -21,6 +21,7 @@ export interface DecodedLock {
   amount: bigint;
   payload: Hex;
   messageSender: Hex;
+  blockNumber: bigint;
 }
 
 export type DecodeResult =
@@ -82,7 +83,8 @@ export async function decodeLockReceipt(client: PublicClient, hash: Hex): Promis
         recipient: getAddress(slice(toBinary, 0, 20)).toLowerCase(),
         amount,
         payload,
-        messageSender: sender
+        messageSender: sender,
+        blockNumber: receipt.blockNumber
       }
     };
   }

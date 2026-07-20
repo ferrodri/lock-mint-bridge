@@ -90,6 +90,7 @@ const locks: FastifyPluginAsync = async (fastify) => {
         // ERC-7930 interoperable address of the source LockBridge (the MessageSent `sender`).
         payload: Buffer.from(lock.payload.slice(2), 'hex'),
         message_sender: Buffer.from(lock.messageSender.slice(2), 'hex'),
+        block_number: lock.blockNumber,
         status: 'pending_verification'
       })
       .onConflict((oc) => oc.column('send_id').doUpdateSet({ id: sql`locks.id` }))
