@@ -30,10 +30,10 @@ export default fp(
     await new Reconciler(fastify.db, destClient, mintSender, log).run();
 
     // Pull-based verification of frontend-submitted locks (source chain), then mint (dest chain).
-    const verifier = new LockVerifier(fastify.db, sourceClient, env, log);
+    const verifier = new LockVerifier(fastify.db, sourceClient, log);
     verifier.start();
 
-    const processor = new MintProcessor(fastify.db, mintSender, env, log);
+    const processor = new MintProcessor(fastify.db, mintSender, log);
     processor.start();
 
     const stuckMonitor = new StuckTransactionMonitor(fastify.db, mintSender, log);

@@ -36,3 +36,27 @@ export const FEE_REFRESH_MS = 12_000;
 // Max rows a single poller tick pulls: the verifier per finality check, the processor per claim.
 // Bounds work (and nonce reservations) per tick; a backlog drains over successive ticks.
 export const CLAIM_BATCH = 25;
+
+// How the verifier decides a lock is safe to mint against:
+//   finalized     - source tx block <= the `finalized` block tag (L1-driven, strongest; ~15-30 min)
+//   safe          - source tx block <= the `safe` block tag (batched to L1; ~5-10 min)
+//   confirmations - source tx block + FINALITY_CONFIRMATIONS <= the `latest` head (fastest, weakest)
+// `finalized` blocks never reorg, so the verifier can trust the block number it recorded at POST time
+// without re-fetching the receipt; `confirmations` trails a reorg-prone head and is best-effort.
+export const FINALITY_POLICIES = ['finalized', 'safe', 'confirmations'] as const;
+export type FinalityPolicy = (typeof FINALITY_POLICIES)[number];
+export const FINALITY_POLICY: FinalityPolicy = 'finalized';
+
+// Only used when FINALITY_POLICY === 'confirmations'.
+export const FINALITY_CONFIRMATIONS = 15n;
+
+// Verifier / mint-processor poll cadence.
+export const POLL_INTERVAL_MS = 5_000;
+
+// How long a lock can stay unverified (tx never appears / never finalizes) before it is marked
+// failed. 60 * 60_000 ms = 1 hour.
+export const MAX_VERIFY_AGE_MS = 60 * 60_000;
+
+// Gas limit for the destination deliver() tx.
+// TODO: fixed high default; replace with a per-op average or eth_estimateGas (see TODO.md).
+export const DEST_GAS_LIMIT = 800_000n;

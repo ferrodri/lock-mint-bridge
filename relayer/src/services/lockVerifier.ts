@@ -1,6 +1,6 @@
 import type { FastifyBaseLogger } from 'fastify';
 import type { PublicClient } from 'viem';
-import type { AppEnv } from '../config/env';
+import { FINALITY_CONFIRMATIONS, FINALITY_POLICY, MAX_VERIFY_AGE_MS, POLL_INTERVAL_MS } from '../config/chains';
 import type { AppDb } from '../db/kysely';
 
 export class LockVerifier {
@@ -11,7 +11,6 @@ export class LockVerifier {
   constructor(
     private readonly db: AppDb,
     private readonly client: PublicClient,
-    private readonly env: AppEnv,
     logger: FastifyBaseLogger
   ) {
     this.logger = logger.child({ component: 'LockVerifier' });
@@ -21,7 +20,7 @@ export class LockVerifier {
     if (this.timer) return;
     this.timer = setInterval(() => {
       void this.tick();
-    }, this.env.pollIntervalMs);
+    }, POLL_INTERVAL_MS);
   }
 
   stop(): void {
@@ -47,12 +46,12 @@ export class LockVerifier {
 
   // Highest source-chain block number currently considered final under the configured policy.
   private async getFinalBlockNumber(): Promise<bigint> {
-    if (this.env.finalityPolicy === 'confirmations') {
+    if (FINALITY_POLICY === 'confirmations') {
       const head = await this.client.getBlockNumber();
-      const threshold = head + 1n - this.env.finalityConfirmations;
+      const threshold = head + 1n - FINALITY_CONFIRMATIONS;
       return threshold > 0n ? threshold : 0n;
     }
-    const block = await this.client.getBlock({ blockTag: this.env.finalityPolicy });
+    const block = await this.client.getBlock({ blockTag: FINALITY_POLICY });
     return block.number ?? 0n;
   }
 
@@ -68,7 +67,7 @@ export class LockVerifier {
   }
 
   private async expireStale(): Promise<void> {
-    const cutoff = new Date(Date.now() - this.env.maxVerifyAgeMs);
+    const cutoff = new Date(Date.now() - MAX_VERIFY_AGE_MS);
     const result = await this.db
       .updateTable('locks')
       .set({ status: 'failed', updated_at: new Date() })

@@ -1,8 +1,7 @@
 import type { FastifyBaseLogger } from 'fastify';
 import { sql } from 'kysely';
 import type { Hex } from 'viem';
-import { CLAIM_BATCH } from '../config/chains';
-import type { AppEnv } from '../config/env';
+import { CLAIM_BATCH, DEST_GAS_LIMIT, POLL_INTERVAL_MS } from '../config/chains';
 import type { AppDb } from '../db/kysely';
 import type { MintSender } from './mintSender';
 
@@ -25,7 +24,6 @@ export class MintProcessor {
   constructor(
     private readonly db: AppDb,
     private readonly mintSender: MintSender,
-    private readonly env: AppEnv,
     logger: FastifyBaseLogger
   ) {
     this.logger = logger.child({ component: 'MintProcessor' });
@@ -35,7 +33,7 @@ export class MintProcessor {
     if (this.timer) return;
     this.timer = setInterval(() => {
       void this.tick();
-    }, this.env.pollIntervalMs);
+    }, POLL_INTERVAL_MS);
   }
 
   stop(): void {
@@ -54,7 +52,7 @@ export class MintProcessor {
           receiveId: t.send_id as Hex,
           messageSender: `0x${t.message_sender.toString('hex')}` as Hex,
           payload: `0x${t.payload.toString('hex')}` as Hex,
-          gasLimit: this.env.destGasLimit
+          gasLimit: DEST_GAS_LIMIT
         });
       }
       if (claimed.length > 0) {
