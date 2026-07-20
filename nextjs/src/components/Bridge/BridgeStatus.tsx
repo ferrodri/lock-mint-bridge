@@ -59,6 +59,25 @@ export const BridgeStatus = () => {
   const lockUrl = lockHash ? `${explorer}/tx/${lockHash}` : undefined;
   const mintUrl = mintHash ? `${destExplorer}/tx/${mintHash}` : undefined;
 
+  const approvePending = phase === 'approving' && busy;
+  const lockPending = phase === 'locking' && busy;
+
+  const approveLabel = approveFailed
+    ? 'Approval failed'
+    : approveConfirmed
+      ? 'Approve transaction confirmed'
+      : approvePending
+        ? 'Approving token'
+        : 'Approve transaction';
+  const lockLabel = lockFailed
+    ? 'Lock failed'
+    : lockConfirmed
+      ? 'Lock transaction confirmed'
+      : lockPending
+        ? 'Locking token'
+        : 'Lock transaction';
+  const mintLabel = minted ? 'Minted on Base Sepolia' : phase === 'waiting' ? 'Minting on Base Sepolia' : 'Mint on Base Sepolia';
+
   return (
     <div className="flex flex-col items-center gap-5 py-2">
       <div className="flex flex-col items-center gap-3">
@@ -88,15 +107,15 @@ export const BridgeStatus = () => {
 
       <div className="flex w-full flex-col gap-2">
         {approvalUsed && (
-          <StatusRow done={approveConfirmed} pending={phase === 'approving' && busy} failed={approveFailed} href={approveUrl}>
-            {approveFailed ? 'Approval failed' : 'Approve transaction confirmed'}
+          <StatusRow done={approveConfirmed} pending={approvePending} failed={approveFailed} href={approveUrl}>
+            {approveLabel}
           </StatusRow>
         )}
-        <StatusRow done={lockConfirmed} pending={phase === 'locking' && busy} failed={lockFailed} href={lockUrl}>
-          {lockFailed ? 'Lock failed' : 'Lock transaction confirmed'}
+        <StatusRow done={lockConfirmed} pending={lockPending} failed={lockFailed} href={lockUrl}>
+          {lockLabel}
         </StatusRow>
         <StatusRow done={minted} pending={phase === 'waiting'} href={mintUrl}>
-          Minted on Base Sepolia
+          {mintLabel}
         </StatusRow>
       </div>
 
