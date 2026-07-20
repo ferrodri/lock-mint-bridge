@@ -24,7 +24,14 @@ const SendIdParam = z.object({ sendId: bytes32 });
 // re-derive from the lock tx below.
 const IdempotencyKey = z.object({ 'idempotency-key': bytes32 });
 
-// TODO: this type and too frontend, also say other solutions could be better but out of scope,
+interface BroadcastView {
+  hash: string;
+  status: string;
+  nonce: string;
+  bumpMultiplier: string;
+  broadcastedAt: string;
+}
+
 interface LockView {
   hash: string;
   sendId: string | null;
@@ -32,7 +39,7 @@ interface LockView {
   amount: string | null;
   recipient: string | null;
   mintTxHash: string | null;
-  broadcasts: unknown[];
+  broadcasts: BroadcastView[];
 }
 
 const locks: FastifyPluginAsync = async (fastify) => {
