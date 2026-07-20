@@ -14,7 +14,7 @@ import { GATEWAY_ABI } from '../abis/gateway';
 import { CONTRACTS, DEST_CHAIN, INITIAL_FEE_MULTIPLIER } from '../config/chains';
 import type { AppDb } from '../db/kysely';
 import type { FeeEstimate } from '../types';
-import { bumpFees, replacementFees } from '../utils/fees';
+import { bumpFees, replacementFees } from '../utils/gas-fees';
 import type { FeesPerGasCache } from './feesPerGasCache';
 import { NonceTracker } from './nonceTracker';
 
